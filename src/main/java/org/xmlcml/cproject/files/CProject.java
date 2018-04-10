@@ -17,11 +17,11 @@ import org.xmlcml.cproject.CProjectArgProcessor;
 import org.xmlcml.cproject.args.DefaultArgProcessor;
 import org.xmlcml.cproject.args.FileXPathSearcher;
 import org.xmlcml.cproject.metadata.AbstractMetadata;
-import org.xmlcml.cproject.metadata.ProjectAnalyzer;
 import org.xmlcml.cproject.metadata.AbstractMetadata.Type;
+import org.xmlcml.cproject.metadata.ProjectAnalyzer;
 import org.xmlcml.cproject.util.CMineGlobber;
 import org.xmlcml.cproject.util.CMineUtil;
-import org.xmlcml.html.HtmlElement;
+import org.xmlcml.graphics.html.HtmlElement;
 import org.xmlcml.xml.XMLUtil;
 
 import com.google.common.collect.ArrayListMultimap;

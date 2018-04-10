@@ -18,7 +18,7 @@ import org.xmlcml.cproject.metadata.crossref.CrossrefMD;
 import org.xmlcml.cproject.metadata.epmc.EpmcMD;
 import org.xmlcml.cproject.metadata.quickscrape.QuickscrapeMD;
 import org.xmlcml.cproject.util.CMineUtil;
-import org.xmlcml.html.HtmlElement;
+import org.xmlcml.graphics.html.HtmlElement;
 import org.xmlcml.xml.XMLUtil;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -812,13 +812,13 @@ ARRAY translator; [{"affiliation":[],"family":"Munder","given":"Marc"},{"affilia
 		} else {
 			JsonElement array0 = array.get(0);
 			List<Object> list = null;
-			Class clazz = array0.getClass();
+			Class<?> clazz = array0.getClass();
 			if (array0.isJsonPrimitive()) {
 				list = new ArrayList<Object>();
 			}
 			for (int i = 0; i < array.size(); i++) {
 				JsonElement arrayi = array.get(i);
-				Class clazzi = arrayi.getClass();
+				Class<?> clazzi = arrayi.getClass();
 				if (!clazzi.equals(clazz)) {
 					throw new RuntimeException("inconsistent class in array("+i+"): "+clazzi+" != "+clazz);
 				}

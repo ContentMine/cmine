@@ -44,14 +44,14 @@ import org.xmlcml.cproject.files.ResultsElement;
 import org.xmlcml.cproject.files.SnippetsTree;
 import org.xmlcml.cproject.lookup.DefaultStringDictionary;
 import org.xmlcml.euclid.Util;
-import org.xmlcml.html.HtmlA;
-import org.xmlcml.html.HtmlBody;
-import org.xmlcml.html.HtmlBr;
-import org.xmlcml.html.HtmlElement;
-import org.xmlcml.html.HtmlFactory;
-import org.xmlcml.html.HtmlH1;
-import org.xmlcml.html.HtmlHtml;
-import org.xmlcml.html.HtmlP;
+import org.xmlcml.graphics.html.HtmlA;
+import org.xmlcml.graphics.html.HtmlBody;
+import org.xmlcml.graphics.html.HtmlBr;
+import org.xmlcml.graphics.html.HtmlElement;
+import org.xmlcml.graphics.html.HtmlFactory;
+import org.xmlcml.graphics.html.HtmlH1;
+import org.xmlcml.graphics.html.HtmlHtml;
+import org.xmlcml.graphics.html.HtmlP;
 import org.xmlcml.xml.XMLUtil;
 
 import com.google.common.collect.HashMultiset;
@@ -62,6 +62,7 @@ import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
+import org.xmlcml.cproject.util.Utils;
 
 
 /** base class for all arg processing. Also contains the workflow logic:
@@ -351,12 +352,14 @@ public class DefaultArgProcessor {
 			throw new RuntimeException("Bad exception level: "+levelS);
 		}
 	}
-
-	public void parseFileFilter(ArgumentOption option, ArgIterator argIterator) {
-		String fileFilterS = argIterator.getString(option);
-		fileFilterPattern = Pattern.compile(fileFilterS);
-		ioFileFilter = new RegexPathFilter(fileFilterPattern);
-	}
+        
+        public void parseFileFilter(ArgumentOption option, ArgIterator argIterator) {
+                String fileFilterS = argIterator.getString(option);
+                // Handle platform-specific paths
+                fileFilterS = Utils.convertPathRegexToCurrentPlatform(fileFilterS);
+                fileFilterPattern = Pattern.compile(fileFilterS);
+                ioFileFilter = new RegexPathFilter(fileFilterPattern);
+        }
 
 	public void parseInput(ArgumentOption option, ArgIterator argIterator) {
 		List<String> inputs = argIterator.createTokenListUpToNextNonDigitMinus(option);
@@ -935,19 +938,24 @@ public class DefaultArgProcessor {
 		if (commandLineArgs == null || commandLineArgs.length == 0) {
 			printHelp();
 		} else {
+                    try {
 			String[] totalArgs = addDefaultsAndParsedArgs(commandLineArgs);
 			ArgIterator argIterator = new ArgIterator(totalArgs);
-			LOG.debug("args with defaults is: "+new ArrayList<String>(Arrays.asList(totalArgs)));
+			LOG.trace("args with defaults is: "+new ArrayList<String>(Arrays.asList(totalArgs)));
 			while (argIterator.hasNext()) {
 				String arg = argIterator.next();
 				LOG.trace("arg> "+arg);
 				try {
 					addArgumentOptionsAndRunParseMethods(argIterator, arg);
 				} catch (Exception e) {
-					throw new RuntimeException("cannot process argument: "+arg+" ("+ExceptionUtils.getRootCauseMessage(e)+")", e);
+					throw new RuntimeException("Cannot process argument: "+arg+" ("+ExceptionUtils.getRootCauseMessage(e)+")", e);
 				}
 			}
 			finalizeArgs();
+                    } catch (RuntimeException ex) {
+                        System.err.println(ex.getMessage());
+                        LOG.error(ex.getMessage(), ex);
+                    }
 		}
 	}
 	
@@ -1074,7 +1082,7 @@ public class DefaultArgProcessor {
 			} catch (IllegalArgumentException ee) {
 				throw ee;
 			} catch (Exception e) {
-				LOG.debug("option in exception "+option.toString());
+				LOG.debug(" exception in option: "+option.toString());
 //				e.printStackTrace();
 				throw new RuntimeException("cannot run ["+methodName+"] in "+option.getVerbose()+
 						" ("+ExceptionUtils.getRootCauseMessage(e)+")", e);
@@ -1214,15 +1222,18 @@ public class DefaultArgProcessor {
 	 * 
 	 */
 	public void runAndOutput() {
+		LOG.trace("MAIN LOOP "+cTreeList);
 		ensureCTreeList();
 		if (cTreeList.size() == 0) {
 			if (projectDirString != null) {
 				output = projectDirString;
 			} else if (output != null) {
-				LOG.warn("no --project given; using --output");
+				LOG.warn("No --project given; using --output");
+                                System.err.println("No --project given; using --output");
 				projectDirString = output;
 			} else {
 				LOG.warn("No --project or --output; ");
+                                System.err.println("No --project or --output");
 //				printHelp();
 				return;
 			}

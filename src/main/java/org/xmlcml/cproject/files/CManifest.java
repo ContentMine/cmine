@@ -1,15 +1,16 @@
 package org.xmlcml.cproject.files;
 
 import java.io.File;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import nu.xom.Element;
-
 import org.apache.commons.io.FileUtils;
 import org.xmlcml.xml.XMLUtil;
+
+import nu.xom.Element;
 
 /** superclass of manifest objects.
  * 
